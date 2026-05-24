@@ -319,11 +319,9 @@ async function saveVoterId(id){
 
 function startPolling(){
 
-  if(APP_MODE === 'admin' && !adminAuthed){
-    return;
+  if(pollTimer) {
+    clearInterval(pollTimer);
   }
-
-  if(pollTimer) clearInterval(pollTimer);
 
   pollTimer = setInterval(async () => {
 
@@ -1167,14 +1165,28 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 
 // ─── INIT ─────────────────────────────────────────────────────────────────
 (async () => {
-  render(); // show loading skeleton
-  await loadVoterId();
-  await loadData();
-  await renderLiveResults();
-  if(hasVoted()) voteStep = 'done';
+
   render();
+
+  await loadVoterId();
+
+  await loadData();
+
+  if(!state.positions) {
+    state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    await saveData(state);
+  }
+
+  await renderLiveResults();
+
+  if(hasVoted()) {
+    voteStep = 'done';
+  }
+
+  render();
+
   startPolling();
-})();
-</script>
+
+})();</script>
 </body>
 </html>

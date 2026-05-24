@@ -318,8 +318,21 @@ async function saveVoterId(id){
 }
 
 function startPolling(){
+
+  if(APP_MODE === 'admin' && !adminAuthed){
+    return;
+  }
+
   if(pollTimer) clearInterval(pollTimer);
-  pollTimer = setInterval(loadData, POLL_INTERVAL);
+
+  pollTimer = setInterval(async () => {
+
+    await loadData();
+
+    await renderLiveResults();
+
+  }, POLL_INTERVAL);
+
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────
@@ -1000,6 +1013,8 @@ function tryAdminLogin(){
 
     authError = '';
 
+    startPolling();
+
   } else {
 
     authError = 'Incorrect password';
@@ -1009,7 +1024,6 @@ function tryAdminLogin(){
   render();
 
 }
-
 function openEditCand(id){
   const c = state.candidates.find(c => c.id===id);
   if(c) editingCand = JSON.parse(JSON.stringify(c));

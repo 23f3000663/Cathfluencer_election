@@ -140,6 +140,18 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f8;min-height:1
 .file-label{display:inline-flex;align-items:center;gap:6px;background:#f8fafc;border:1.5px dashed #cbd5e1;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:13px;color:#64748b;font-weight:600;transition:all .15s}
 .file-label:hover{border-color:var(--blue);color:var(--blue);background:#eff6ff}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script>
+
+const SUPABASE_URL = "https://kebtmajbmqzskwtzqubf.supabase.co";
+const SUPABASE_KEY = "sb_publishable_8_bTLvVXrTLRKxzmQBl21w_awGRz9Ei";
+
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+</script>
 </head>
 <body>
 
@@ -760,22 +772,69 @@ async function registerVoter(){
   voteMsg = ''; voteStep = 'vote'; render();
 }
 
+async function saveVoteToSupabase(email, selections) {
+
+  const { data, error } = await supabaseClient
+    .from('votes')
+    .insert([
+      {
+        email: email,
+        selections: selections
+      }
+    ]);
+
+  if(error) {
+
+    console.error(error);
+
+    alert("Vote already exists or database error.");
+
+    return false;
+
+  }
+
+  return true;
+}
+
 async function submitVote(){
+
   const missing = state.positions.filter(p =>
     state.candidates.some(c => c.positionId===p.id) && !selections[p.id]
   );
-  if(missing.length){ voteMsg = `Please select a candidate for: ${missing.map(p=>p.name).join(', ')}`; render(); return; }
+
+  if(missing.length){
+
+    voteMsg =
+      `Please select a candidate for: ${missing.map(p=>p.name).join(', ')}`;
+
+    render();
+
+    return;
+
+  }
+
+  const success = await saveVoteToSupabase(
+    voterEmail,
+    selections
+  );
+
+  if(!success) return;
 
   const newState = JSON.parse(JSON.stringify(state));
-  Object.values(selections).forEach(cid => {
-    const c = newState.candidates.find(c => c.id===cid);
-    if(c) c.votes++;
-  });
-  if(!newState.voters.includes(voterId)) newState.voters.push(voterId);
-  await saveData(newState);
-  voteStep = 'done'; voteMsg = ''; render();
-}
 
+  if(!newState.voters.includes(voterId)) {
+    newState.voters.push(voterId);
+  }
+
+  await saveData(newState);
+
+  voteStep = 'done';
+
+  voteMsg = '';
+
+  render();
+
+}
 function tryAdminLogin(){
   adminPassInput = document.getElementById('admin-pass')?.value || '';
   if(adminPassInput === 'admin123'){ adminAuthed=true; authError=''; adminPassInput=''; }
@@ -934,5 +993,7 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
   startPolling();
 })();
 </script>
+<script>
+
 </body>
 </html>

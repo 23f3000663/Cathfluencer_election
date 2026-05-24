@@ -990,10 +990,24 @@ async function submitVote(){
 
 }
 function tryAdminLogin(){
-  adminPassInput = document.getElementById('admin-pass')?.value || '';
-  if(adminPassInput === 'admin123'){ adminAuthed=true; authError=''; adminPassInput=''; }
-  else { authError = 'Incorrect password. Default is admin123'; }
+
+  const pass =
+    document.getElementById('admin-pass')?.value || '';
+
+  if(pass === 'admin123'){
+
+    adminAuthed = true;
+
+    authError = '';
+
+  } else {
+
+    authError = 'Incorrect password';
+
+  }
+
   render();
+
 }
 
 function openEditCand(id){

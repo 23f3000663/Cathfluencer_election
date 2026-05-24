@@ -488,55 +488,217 @@ function renderVoteView(){
 }
 
 // ─── RESULTS VIEW ─────────────────────────────────────────────────────────
+async function fetchLiveVotes(){
+
+  const { data, error } = await supabaseClient
+    .from('votes')
+    .select('*');
+
+  if(error){
+
+    console.error(error);
+
+    return [];
+
+  }
+
+  return data || [];
+
+}
+
+async function renderLiveResults(){
+
+  const votes = await fetchLiveVotes();
+
+  const voteCounts = {};
+
+  votes.forEach(v => {
+
+    Object.values(v.selections).forEach(candidateId => {
+
+      voteCounts[candidateId] =
+        (voteCounts[candidateId] || 0) + 1;
+
+    });
+
+  });
+
+  state.candidates.forEach(c => {
+
+    c.votes = voteCounts[c.id] || 0;
+
+  });
+
+  render();
+
+}
+
 function renderResultsView(){
-  const barColors = ['#1d4ed8','#7c3aed','#db2777','#059669','#d97706','#0891b2','#dc2626'];
+
+  const barColors = [
+    '#1d4ed8',
+    '#7c3aed',
+    '#db2777',
+    '#059669',
+    '#d97706',
+    '#0891b2',
+    '#dc2626'
+  ];
+
   const total = state.voters.length;
-  const stats = `<div class="stats">
-    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Total Votes Cast</div></div>
-    <div class="stat-card"><div class="stat-num">${state.positions.length}</div><div class="stat-label">Positions</div></div>
-    <div class="stat-card"><div class="stat-num">${state.candidates.length}</div><div class="stat-label">Candidates</div></div>
+
+  const stats = `
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-num">${total}</div>
+      <div class="stat-label">Total Votes Cast</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-num">${state.positions.length}</div>
+      <div class="stat-label">Positions</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-num">${state.candidates.length}</div>
+      <div class="stat-label">Candidates</div>
+    </div>
   </div>`;
 
   const posBlocks = state.positions.map(pos => {
-    const cands = [...state.candidates.filter(c => c.positionId === pos.id)].sort((a,b) => b.votes - a.votes);
+
+    const cands = [...state.candidates
+      .filter(c => c.positionId === pos.id)]
+      .sort((a,b) => b.votes - a.votes);
+
     if(!cands.length) return '';
-    const posTotal = cands.reduce((s,c) => s+c.votes, 0);
+
+    const posTotal =
+      cands.reduce((s,c) => s+c.votes, 0);
+
     const winner = cands[0];
+
     const rows = cands.map((c, ci) => {
-      const pct = posTotal ? Math.round(c.votes/posTotal*100) : 0;
-      const isWinner = c.id === winner?.id && posTotal > 0;
-      const color = barColors[ci % barColors.length];
-      return `<div class="result-row" style="background:${isWinner?'#f0fdf4':'#fff'}">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+
+      const pct =
+        posTotal
+          ? Math.round(c.votes/posTotal*100)
+          : 0;
+
+      const isWinner =
+        c.id === winner?.id && posTotal > 0;
+
+      const color =
+        barColors[ci % barColors.length];
+
+      return `
+      <div class="result-row"
+        style="background:${isWinner?'#f0fdf4':'#fff'}">
+
+        <div style="
+          display:flex;
+          align-items:center;
+          gap:12px;
+          margin-bottom:6px">
+
           ${avatarHtml(c.name, c.image, 44)}
+
           <div style="flex:1">
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-              <span style="font-weight:800;font-size:15px">${esc(c.name)}</span>
-              ${isWinner && posTotal>0 ? `<span class="badge badge-green">🏆 Winner</span>` : ''}
+
+            <div style="
+              display:flex;
+              align-items:center;
+              gap:8px;
+              flex-wrap:wrap">
+
+              <span style="
+                font-weight:800;
+                font-size:15px">
+
+                ${esc(c.name)}
+
+              </span>
+
+              ${isWinner && posTotal>0
+                ? `<span class="badge badge-green">
+                    🏆 Winner
+                   </span>`
+                : ''}
+
             </div>
-            ${c.bio ? `<div style="font-size:12px;color:#64748b">${esc(c.bio)}</div>` : ''}
+
+            ${c.bio
+              ? `<div style="
+                  font-size:12px;
+                  color:#64748b">
+
+                  ${esc(c.bio)}
+
+                 </div>`
+              : ''}
+
           </div>
+
           <div style="text-align:right">
-            <div style="font-weight:800;font-size:17px;color:${color}">${pct}%</div>
-            <div style="font-size:12px;color:#64748b">${c.votes} votes</div>
+
+            <div style="
+              font-weight:800;
+              font-size:17px;
+              color:${color}">
+
+              ${pct}%
+
+            </div>
+
+            <div style="
+              font-size:12px;
+              color:#64748b">
+
+              ${c.votes} votes
+
+            </div>
+
           </div>
+
         </div>
+
         ${progressBar(c.votes, posTotal||1, color)}
+
       </div>`;
+
     }).join('');
 
-    return `<div class="pos-block">
+    return `
+    <div class="pos-block">
+
       <div class="pos-header">
-        <span class="pos-title">${esc(pos.name)}</span>
-        <span style="font-size:12px;color:#64748b">${posTotal} votes total</span>
+
+        <span class="pos-title">
+          ${esc(pos.name)}
+        </span>
+
+        <span style="
+          font-size:12px;
+          color:#64748b">
+
+          ${posTotal} votes total
+
+        </span>
+
       </div>
+
       ${rows}
+
     </div>`;
+
   }).join('');
 
-  return `<div class="container">${stats}${posBlocks}</div>`;
+  return `
+  <div class="container">
+    ${stats}
+    ${posBlocks}
+  </div>`;
 }
-
 // ─── ADMIN VIEW ───────────────────────────────────────────────────────────
 function renderAdminView(){
   if(!adminAuthed) return `<div class="container">
@@ -988,6 +1150,7 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
   render(); // show loading skeleton
   await loadVoterId();
   await loadData();
+  await renderLiveResults();
   if(hasVoted()) voteStep = 'done';
   render();
   startPolling();

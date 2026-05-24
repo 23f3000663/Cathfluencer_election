@@ -276,11 +276,18 @@ async function loadData(){
 
     if(data && data.data){
 
+      if(
+        !data.data.positions ||
+        !data.data.candidates ||
+        !data.data.voters
+      ){
+        console.error('Invalid state structure');
+        return;
+      }
+
       state = data.data;
 
       lastDataHash = JSON.stringify(state);
-
-      render();
 
     }
 
@@ -291,7 +298,6 @@ async function loadData(){
   }
 
 }
-
 async function loadVoterId(){
   try {
 
@@ -319,7 +325,11 @@ async function saveVoterId(id){
 
 function startPolling(){
 
-  if(pollTimer) {
+  if(APP_MODE === 'admin' && !adminAuthed){
+    return;
+  }
+
+  if(pollTimer){
     clearInterval(pollTimer);
   }
 
@@ -332,7 +342,6 @@ function startPolling(){
   }, POLL_INTERVAL);
 
 }
-
 // ─── HELPERS ─────────────────────────────────────────────────────────────
 function avatarHtml(name, image, size=48){
   const colors = ['#2563eb','#7c3aed','#db2777','#059669','#d97706','#0891b2','#dc2626'];
@@ -538,6 +547,9 @@ async function renderLiveResults(){
 
 function renderResultsView(){
 
+  const liveCandidates =
+    window.liveCandidates || state.candidates;
+
   const barColors = [
     '#1d4ed8',
     '#7c3aed',
@@ -563,14 +575,14 @@ function renderResultsView(){
     </div>
 
     <div class="stat-card">
-      <div class="stat-num">${state.candidates.length}</div>
+      <div class="stat-num">${liveCandidates.length}</div>
       <div class="stat-label">Candidates</div>
     </div>
   </div>`;
 
   const posBlocks = state.positions.map(pos => {
 
-    const cands = [...state.candidates
+    const cands = [...liveCandidates
       .filter(c => c.positionId === pos.id)]
       .sort((a,b) => b.votes - a.votes);
 
@@ -702,6 +714,7 @@ function renderResultsView(){
     ${posBlocks}
   </div>`;
 }
+
 // ─── ADMIN VIEW ───────────────────────────────────────────────────────────
 function renderAdminView(){
   if(!adminAuthed) return `<div class="container">
@@ -1172,14 +1185,23 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 
   await loadData();
 
-  if(!state.positions) {
-    state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  if(
+    !state.positions ||
+    !state.candidates ||
+    !state.voters
+  ){
+
+    state = JSON.parse(
+      JSON.stringify(DEFAULT_DATA)
+    );
+
     await saveData(state);
+
   }
 
   await renderLiveResults();
 
-  if(hasVoted()) {
+  if(hasVoted()){
     voteStep = 'done';
   }
 
@@ -1187,6 +1209,7 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 
   startPolling();
 
-})();</script>
+})();
+</script>
 </body>
 </html>

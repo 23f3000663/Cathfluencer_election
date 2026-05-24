@@ -236,10 +236,14 @@ async function saveData(newState){
 
   try {
 
-    localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify(newState)
-    );
+    const { error } = await supabaseClient
+      .from('election_state')
+      .update({
+        data: newState
+      })
+      .eq('id', 1);
+
+    if(error) throw error;
 
     state = newState;
 
@@ -251,55 +255,43 @@ async function saveData(newState){
 
   } catch(e){
 
-    setSyncStatus('error');
+    console.error(e);
 
-    console.error('Save error:', e);
+    setSyncStatus('error');
 
   }
 
 }
-
 async function loadData(){
+
   try {
 
-    const res = localStorage.getItem(STORAGE_KEY);
+    const { data, error } = await supabaseClient
+      .from('election_state')
+      .select('*')
+      .eq('id', 1)
+      .single();
 
-    if(res){
+    if(error) throw error;
 
-      const loaded = JSON.parse(res);
+    if(data && data.data){
 
-      const hash = JSON.stringify(loaded);
+      state = data.data;
 
-      if(hash !== lastDataHash){
+      lastDataHash = JSON.stringify(state);
 
-        lastDataHash = hash;
-
-        state = loaded;
-
-        render();
-
-      }
-
-    } else {
-
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(DEFAULT_DATA)
-      );
-
-      state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      render();
 
     }
 
   } catch(e){
 
-    console.error('Load error:', e);
-
-    state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    console.error(e);
 
   }
 
 }
+
 async function loadVoterId(){
   try {
 

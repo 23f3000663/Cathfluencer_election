@@ -1,0 +1,938 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f8;min-height:100vh;color:#1a202c}
+:root{--blue:#1d4ed8;--blue-dark:#1e3a8a;--green:#16a34a;--red:#dc2626;--amber:#d97706}
+
+/* NAV */
+.nav{background:#0f172a;padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.nav-brand{color:#fff;font-weight:800;font-size:16px;display:flex;align-items:center;gap:8px}
+.nav-org{color:rgba(255,255,255,0.45);font-size:11px;display:block;font-weight:400}
+.nav-btns{display:flex;gap:6px}
+.nav-btn{background:transparent;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.2);border-radius:7px;padding:5px 14px;cursor:pointer;font-size:13px;font-weight:500;transition:all .15s}
+.nav-btn:hover{background:rgba(255,255,255,0.1);color:#fff}
+.nav-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 50%,#0f172a 100%);color:#fff;text-align:center;padding:40px 20px 32px}
+.hero-org{font-size:11px;letter-spacing:3px;text-transform:uppercase;opacity:.6;margin-bottom:10px}
+.hero-title{font-size:28px;font-weight:900;letter-spacing:-1px;margin-bottom:6px;line-height:1.2}
+.hero-sub{font-size:14px;opacity:.8;margin-bottom:18px}
+.hero-pills{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.pill{background:rgba(255,255,255,0.15);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:500}
+.pill.open{background:rgba(34,197,94,0.25);color:#86efac}
+.pill.closed{background:rgba(239,68,68,0.2);color:#fca5a5}
+
+/* CONTAINER */
+.container{max-width:860px;margin:0 auto;padding:24px 16px}
+
+/* CARD */
+.card{background:#fff;border-radius:14px;border:1px solid #e2e8f0;padding:20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,0.04)}
+.card-sm{background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:16px 18px;margin-bottom:10px}
+
+/* BUTTONS */
+.btn{border:none;border-radius:8px;padding:8px 18px;cursor:pointer;font-weight:600;font-size:13px;transition:all .15s}
+.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:#1e40af}
+.btn-success{background:var(--green);color:#fff}.btn-success:hover{background:#15803d}
+.btn-danger{background:var(--red);color:#fff}.btn-danger:hover{background:#b91c1c}
+.btn-ghost{background:#f1f5f9;color:#374151;border:1px solid #e2e8f0}.btn-ghost:hover{background:#e2e8f0}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* FORM */
+.label{font-size:12px;font-weight:700;color:#475569;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+.input{width:100%;border:1.5px solid #e2e8f0;border-radius:8px;padding:9px 12px;font-size:14px;outline:none;font-family:inherit;transition:border .15s;background:#fff;color:#1a202c}
+.input:focus{border-color:var(--blue)}
+.select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+
+/* BADGE */
+.badge{border-radius:20px;padding:2px 10px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:4px}
+.badge-blue{background:#dbeafe;color:#1d4ed8}
+.badge-green{background:#dcfce7;color:#16a34a}
+.badge-red{background:#fee2e2;color:#dc2626}
+.badge-amber{background:#fef3c7;color:#d97706}
+.badge-gray{background:#f1f5f9;color:#64748b}
+
+/* POSITION SECTION */
+.pos-block{background:#fff;border-radius:14px;border:1px solid #e2e8f0;margin-bottom:20px;overflow:hidden}
+.pos-header{background:#f8fafc;border-bottom:1px solid #e2e8f0;padding:14px 20px;display:flex;align-items:center;justify-content:space-between}
+.pos-title{font-weight:800;font-size:16px;color:#0f172a}
+
+/* CANDIDATE ROW */
+.cand-row{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid #f8fafc;cursor:pointer;transition:background .1s}
+.cand-row:last-child{border-bottom:none}
+.cand-row:hover{background:#f8fafc}
+.cand-row.selected{background:#eff6ff}
+.radio-circle{width:22px;height:22px;border-radius:50%;border:2.5px solid #cbd5e1;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.radio-circle.sel{border-color:var(--blue);background:var(--blue)}
+.radio-dot{width:8px;height:8px;border-radius:50%;background:#fff}
+.avatar{border-radius:50%;object-fit:cover;flex-shrink:0}
+.avatar-init{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;color:#fff}
+
+/* RESULTS */
+.result-row{padding:14px 20px;border-bottom:1px solid #f8fafc}
+.result-row:last-child{border-bottom:none}
+.progress-bg{background:#f1f5f9;border-radius:8px;height:8px;overflow:hidden;margin:6px 0}
+.progress-fill{height:100%;border-radius:8px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+
+/* STAT CARDS */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+.stat-card{background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:16px;text-align:center}
+.stat-num{font-size:30px;font-weight:900;color:#1d4ed8;line-height:1}
+.stat-label{font-size:12px;color:#64748b;margin-top:4px;font-weight:500}
+
+/* ADMIN TABS */
+.tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.tab{background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:8px;padding:7px 16px;cursor:pointer;font-size:13px;font-weight:600;transition:all .15s}
+.tab:hover{background:#e2e8f0}
+.tab.active{background:#0f172a;color:#fff;border-color:#0f172a}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px}
+.modal{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
+.modal-title{font-size:18px;font-weight:800;margin-bottom:16px;color:#0f172a}
+
+/* GRID */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:500px){.grid2,.grid3{grid-template-columns:1fr}}
+
+/* LOADING */
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px;gap:14px;color:#64748b}
+.spinner{width:36px;height:36px;border:3px solid #e2e8f0;border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* DONE STATE */
+.done-card{text-align:center;padding:48px 24px}
+.done-icon{font-size:64px;margin-bottom:16px}
+
+/* INLINE EDIT */
+.inline-edit{background:transparent;border:none;border-bottom:2px dashed rgba(255,255,255,.4);color:inherit;font:inherit;outline:none;cursor:text;padding:2px 0}
+.inline-edit:focus{border-bottom-color:rgba(255,255,255,.9)}
+
+/* TOGGLE */
+.toggle-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f1f5f9}
+.toggle-row:last-child{border-bottom:none}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:#cbd5e1;border-radius:24px;cursor:pointer;transition:.2s}
+.toggle input:checked+.toggle-slider{background:var(--green)}
+.toggle-slider:before{content:'';position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s}
+.toggle input:checked+.toggle-slider:before{transform:translateX(20px)}
+.toggle-text{flex:1}
+.toggle-label{font-weight:700;font-size:14px;color:#0f172a}
+.toggle-desc{font-size:12px;color:#64748b;margin-top:1px}
+
+/* SYNC indicator */
+.sync{position:fixed;bottom:16px;right:16px;background:#0f172a;color:#fff;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;z-index:100;transition:opacity .3s;pointer-events:none}
+.sync-dot{width:8px;height:8px;border-radius:50%}
+.sync-dot.ok{background:#22c55e}
+.sync-dot.syncing{background:#f59e0b;animation:pulse .8s infinite}
+.sync-dot.error{background:#ef4444}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* FILE INPUT */
+.file-label{display:inline-flex;align-items:center;gap:6px;background:#f8fafc;border:1.5px dashed #cbd5e1;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:13px;color:#64748b;font-weight:600;transition:all .15s}
+.file-label:hover{border-color:var(--blue);color:var(--blue);background:#eff6ff}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+<div id="sync" class="sync" style="opacity:0">
+  <div class="sync-dot ok" id="sync-dot"></div>
+  <span id="sync-text">Synced</span>
+</div>
+
+<script>
+const STORAGE_KEY = 'election_portal_v2';
+const VOTER_KEY = 'election_voter_id_v2';
+const ADMIN_KEY = 'election_admin_auth';
+const POLL_INTERVAL = 4000;
+
+// Detect mode from URL
+const urlParams = new URLSearchParams(window.location.search);
+const APP_MODE = urlParams.get('mode') || 'vote'; 
+// modes: vote | admin
+
+const DEFAULT_DATA = {
+  title: 'Inter-Organizational Election 2025',
+  subtitle: 'Cast your vote for your preferred candidates',
+  organizationName: 'Your Organization',
+  electionOpen: true,
+  showResults: false,
+  positions: [
+    {id:'p1', name:'President'},
+    {id:'p2', name:'Vice President'},
+    {id:'p3', name:'Secretary'}
+  ],
+  candidates: [
+    {id:'c1', name:'Arjun Mehta', positionId:'p1', bio:'5 years of leadership experience', image:null, votes:0},
+    {id:'c2', name:'Priya Sharma', positionId:'p1', bio:'Passionate about innovation & change', image:null, votes:0},
+    {id:'c3', name:'Ravi Kumar', positionId:'p2', bio:'Former department head', image:null, votes:0},
+    {id:'c4', name:'Anita Nair', positionId:'p3', bio:'Excellent communication skills', image:null, votes:0},
+  ],
+  voters: []
+};
+
+// ─── SHARED STORAGE (window.storage API) ─────────────────────────────────
+let state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+let voterId = null;
+let adminAuthed = false;
+let currentView = APP_MODE === 'admin' ? 'admin' : 'vote';
+let adminTab = 'candidates';
+let voteStep = 'register'; // register | vote | done
+let selections = {};
+let voterName = '';
+let voterEmail = '';
+let syncStatus = 'ok'; // ok | syncing | error
+let editingCand = null;
+let editingPos = null;
+let showAdminLogin = false;
+let adminPassInput = '';
+let authError = '';
+let newCand = {name:'',positionId:'',bio:'',image:null};
+let newPosName = '';
+let lastDataHash = '';
+let pollTimer = null;
+let voteMsg = '';
+let adminMsg = '';
+
+function gid(){ return Math.random().toString(36).slice(2,8); }
+
+// ─── SYNC ────────────────────────────────────────────────────────────────
+function setSyncStatus(s){
+  syncStatus = s;
+  const el = document.getElementById('sync');
+  const dot = document.getElementById('sync-dot');
+  const txt = document.getElementById('sync-text');
+  if(!el) return;
+  el.style.opacity = '1';
+  dot.className = 'sync-dot ' + s;
+  txt.textContent = s === 'ok' ? 'Synced' : s === 'syncing' ? 'Saving...' : 'Sync error';
+  if(s === 'ok') setTimeout(() => { if(el) el.style.opacity='0'; }, 2000);
+}
+
+async function saveData(newState){
+
+  setSyncStatus('syncing');
+
+  try {
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(newState)
+    );
+
+    state = newState;
+
+    lastDataHash = JSON.stringify(newState);
+
+    setSyncStatus('ok');
+
+    render();
+
+  } catch(e){
+
+    setSyncStatus('error');
+
+    console.error('Save error:', e);
+
+  }
+
+}
+
+async function loadData(){
+  try {
+
+    const res = localStorage.getItem(STORAGE_KEY);
+
+    if(res){
+
+      const loaded = JSON.parse(res);
+
+      const hash = JSON.stringify(loaded);
+
+      if(hash !== lastDataHash){
+
+        lastDataHash = hash;
+
+        state = loaded;
+
+        render();
+
+      }
+
+    } else {
+
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(DEFAULT_DATA)
+      );
+
+      state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+
+    }
+
+  } catch(e){
+
+    console.error('Load error:', e);
+
+    state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+
+  }
+
+}
+async function loadVoterId(){
+  try {
+
+    voterId = localStorage.getItem(VOTER_KEY);
+
+  } catch(e){
+
+    console.error('Voter load error:', e);
+
+  }
+
+}
+async function saveVoterId(id){
+  try {
+
+    localStorage.setItem(VOTER_KEY, id);
+
+  } catch(e){
+
+    console.error('Voter save error:', e);
+
+  }
+
+}
+
+function startPolling(){
+  if(pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(loadData, POLL_INTERVAL);
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────
+function avatarHtml(name, image, size=48){
+  const colors = ['#2563eb','#7c3aed','#db2777','#059669','#d97706','#0891b2','#dc2626'];
+  const color = colors[(name||'?').charCodeAt(0) % colors.length];
+  const initials = (name||'?').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  if(image) return `<img src="${image}" class="avatar" style="width:${size}px;height:${size}px;border:2px solid #e2e8f0">`;
+  return `<div class="avatar-init" style="width:${size}px;height:${size}px;background:${color};font-size:${Math.floor(size*0.35)}px;border:2px solid rgba(0,0,0,0.08)">${initials}</div>`;
+}
+
+function progressBar(value, max, color){
+  const pct = max ? Math.round(value/max*100) : 0;
+  return `<div class="progress-bg"><div class="progress-fill" style="width:${pct}%;background:${color}"></div></div>`;
+}
+
+const hasVoted = () => voterId && state.voters.includes(voterId);
+
+// ─── RENDER ───────────────────────────────────────────────────────────────
+function render(){
+  const app = document.getElementById('app');
+  if(!app) return;
+  app.innerHTML = renderNav() + renderHero() + renderBody();
+  attachEvents();
+}
+
+function renderNav(){
+
+  const tabs = [];
+
+  // Voter mode
+  if(APP_MODE === 'vote'){
+
+    tabs.push({id:'vote',label:'🗳️ Vote'});
+
+    if(state.showResults){
+      tabs.push({id:'results',label:'📊 Results'});
+    }
+
+  }
+
+  // Admin mode
+  if(APP_MODE === 'admin'){
+
+    tabs.push({id:'admin',label:'⚙️ Admin'});
+
+    tabs.push({id:'results',label:'📊 Results'});
+
+  }
+
+  const btns = tabs.map(t =>
+    `<button class="nav-btn ${currentView===t.id?'active':''}"
+      onclick="setView('${t.id}')">${t.label}</button>`
+  ).join('');
+
+  const logoutBtn =
+    adminAuthed && currentView==='admin'
+      ? `<button class="nav-btn" onclick="logout()">Logout</button>`
+      : '';
+
+  return `
+    <nav class="nav">
+      <div class="nav-brand">
+        <span>🗳️ Election Portal</span>
+      </div>
+      <div class="nav-btns">${btns}${logoutBtn}</div>
+    </nav>
+  `;
+}
+function renderHero(){
+  if(currentView === 'admin') return '';
+  const pill = state.electionOpen
+    ? `<span class="pill open">🟢 Voting Open</span>`
+    : `<span class="pill closed">🔴 Voting Closed</span>`;
+  return `<div class="hero">
+    <div class="hero-org" id="hero-org">${esc(state.organizationName)}</div>
+    <h1 class="hero-title" id="hero-title">${esc(state.title)}</h1>
+    <p class="hero-sub" id="hero-sub">${esc(state.subtitle)}</p>
+    <div class="hero-pills">
+      ${pill}
+      <span class="pill">${state.voters.length} votes cast</span>
+      <span class="pill">${state.candidates.length} candidates · ${state.positions.length} positions</span>
+    </div>
+  </div>`;
+}
+
+function renderBody(){
+  if(currentView === 'vote') return renderVoteView();
+  if(currentView === 'results') return renderResultsView();
+  if(currentView === 'admin') return renderAdminView();
+  return '';
+}
+
+// ─── VOTE VIEW ────────────────────────────────────────────────────────────
+function renderVoteView(){
+  if(!state.electionOpen) return `<div class="container"><div class="card done-card">
+    <div class="done-icon">🔒</div>
+    <h2 style="color:#1e3a8a;margin-bottom:8px">Voting is Closed</h2>
+    <p style="color:#64748b">The election is not currently open. Please check back later.</p>
+    ${state.showResults ? `<br><button class="btn btn-primary" onclick="setView('results')">View Results →</button>` : ''}
+  </div></div>`;
+
+  if(hasVoted() || voteStep === 'done') return `<div class="container"><div class="card done-card">
+    <div class="done-icon">✅</div>
+    <h2 style="color:#16a34a;margin-bottom:8px">Vote Recorded!</h2>
+    <p style="color:#64748b">Thank you for participating. Your vote has been counted.</p>
+    ${state.showResults ? `<br><button class="btn btn-primary" onclick="setView('results')">View Results →</button>` : ''}
+  </div></div>`;
+
+  if(voteStep === 'register') return `<div class="container">
+    <div class="card" style="max-width:440px;margin:0 auto">
+      <h3 style="margin-bottom:4px;color:#0f172a;font-size:18px">Voter Registration</h3>
+      <p style="color:#64748b;font-size:13px;margin-bottom:18px">Confirm your identity to proceed to voting.</p>
+      <div style="margin-bottom:12px">
+        <label class="label">Full Name</label>
+        <input class="input" id="vn-name" value="${esc(voterName)}" placeholder="Your full name">
+      </div>
+      <div style="margin-bottom:16px">
+        <label class="label">Email Address</label>
+        <input class="input" id="vn-email" type="email" value="${esc(voterEmail)}" placeholder="you@example.com">
+      </div>
+      ${voteMsg ? `<p style="color:var(--red);font-size:13px;margin-bottom:10px">${esc(voteMsg)}</p>` : ''}
+      <button class="btn btn-primary" id="reg-btn">Continue to Vote →</button>
+    </div>
+  </div>`;
+
+  // Voting form
+  const posBlocks = state.positions.map(pos => {
+    const cands = state.candidates.filter(c => c.positionId === pos.id);
+    if(!cands.length) return '';
+    const rows = cands.map(c => {
+      const sel = selections[pos.id] === c.id;
+      return `<div class="cand-row ${sel?'selected':''}" onclick="selectCand('${pos.id}','${c.id}')">
+        <div class="radio-circle ${sel?'sel':''}">${sel?'<div class="radio-dot"></div>':''}</div>
+        ${avatarHtml(c.name, c.image, 50)}
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:15px">${esc(c.name)}</div>
+          ${c.bio ? `<div style="font-size:12px;color:#64748b">${esc(c.bio)}</div>` : ''}
+        </div>
+        ${sel ? `<span class="badge badge-green">✓ Selected</span>` : ''}
+      </div>`;
+    }).join('');
+    return `<div class="pos-block">
+      <div class="pos-header">
+        <span class="pos-title">${esc(pos.name)}</span>
+        <span class="badge badge-gray">Select one</span>
+      </div>
+      ${rows}
+    </div>`;
+  }).join('');
+
+  return `<div class="container">
+    <p style="color:#64748b;margin-bottom:20px;font-size:14px">Select one candidate per position. All positions are required.</p>
+    ${posBlocks}
+    ${voteMsg ? `<p style="color:var(--red);font-size:13px;margin-bottom:12px">${esc(voteMsg)}</p>` : ''}
+    <button class="btn btn-success" id="submit-vote-btn" style="padding:12px 32px;font-size:15px">Submit Vote ✓</button>
+  </div>`;
+}
+
+// ─── RESULTS VIEW ─────────────────────────────────────────────────────────
+function renderResultsView(){
+  const barColors = ['#1d4ed8','#7c3aed','#db2777','#059669','#d97706','#0891b2','#dc2626'];
+  const total = state.voters.length;
+  const stats = `<div class="stats">
+    <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Total Votes Cast</div></div>
+    <div class="stat-card"><div class="stat-num">${state.positions.length}</div><div class="stat-label">Positions</div></div>
+    <div class="stat-card"><div class="stat-num">${state.candidates.length}</div><div class="stat-label">Candidates</div></div>
+  </div>`;
+
+  const posBlocks = state.positions.map(pos => {
+    const cands = [...state.candidates.filter(c => c.positionId === pos.id)].sort((a,b) => b.votes - a.votes);
+    if(!cands.length) return '';
+    const posTotal = cands.reduce((s,c) => s+c.votes, 0);
+    const winner = cands[0];
+    const rows = cands.map((c, ci) => {
+      const pct = posTotal ? Math.round(c.votes/posTotal*100) : 0;
+      const isWinner = c.id === winner?.id && posTotal > 0;
+      const color = barColors[ci % barColors.length];
+      return `<div class="result-row" style="background:${isWinner?'#f0fdf4':'#fff'}">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px">
+          ${avatarHtml(c.name, c.image, 44)}
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <span style="font-weight:800;font-size:15px">${esc(c.name)}</span>
+              ${isWinner && posTotal>0 ? `<span class="badge badge-green">🏆 Winner</span>` : ''}
+            </div>
+            ${c.bio ? `<div style="font-size:12px;color:#64748b">${esc(c.bio)}</div>` : ''}
+          </div>
+          <div style="text-align:right">
+            <div style="font-weight:800;font-size:17px;color:${color}">${pct}%</div>
+            <div style="font-size:12px;color:#64748b">${c.votes} votes</div>
+          </div>
+        </div>
+        ${progressBar(c.votes, posTotal||1, color)}
+      </div>`;
+    }).join('');
+
+    return `<div class="pos-block">
+      <div class="pos-header">
+        <span class="pos-title">${esc(pos.name)}</span>
+        <span style="font-size:12px;color:#64748b">${posTotal} votes total</span>
+      </div>
+      ${rows}
+    </div>`;
+  }).join('');
+
+  return `<div class="container">${stats}${posBlocks}</div>`;
+}
+
+// ─── ADMIN VIEW ───────────────────────────────────────────────────────────
+function renderAdminView(){
+  if(!adminAuthed) return `<div class="container">
+    <div class="card" style="max-width:380px;margin:40px auto;text-align:center;padding:32px">
+      <div style="font-size:48px;margin-bottom:12px">🔐</div>
+      <h3 style="color:#0f172a;margin-bottom:6px">Admin Access</h3>
+      <p style="color:#64748b;font-size:13px;margin-bottom:20px">Enter the admin password to manage this election.</p>
+      <input class="input" id="admin-pass" type="password" value="${esc(adminPassInput)}" placeholder="Enter password" style="margin-bottom:10px">
+      ${authError ? `<p style="color:var(--red);font-size:13px;margin-bottom:8px">${esc(authError)}</p>` : ''}
+      <button class="btn btn-primary" id="admin-login-btn" style="width:100%">Login</button>
+      
+    </div>
+  </div>`;
+
+  const tabs = [{id:'candidates',label:'👤 Candidates'},{id:'positions',label:'📋 Positions'},{id:'settings',label:'⚙️ Settings'},{id:'results',label:'📊 Live Results'}];
+  const tabHtml = tabs.map(t => `<button class="tab ${adminTab===t.id?'active':''}" onclick="setAdminTab('${t.id}')">${t.label}</button>`).join('');
+
+  let content = '';
+  if(adminTab === 'candidates') content = renderAdminCandidates();
+  else if(adminTab === 'positions') content = renderAdminPositions();
+  else if(adminTab === 'settings') content = renderAdminSettings();
+  else if(adminTab === 'results') content = renderResultsView().replace('<div class="container">','<div>');
+
+  return `<div class="container">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div>
+        <h2 style="font-size:20px;font-weight:900;color:#0f172a">Admin Panel</h2>
+        <p style="font-size:12px;color:#64748b;margin-top:2px">Changes save instantly and reflect for all users</p>
+      </div>
+      <span class="badge badge-green" style="font-size:11px">🟢 Live Sync Active</span>
+    </div>
+    <div class="tabs">${tabHtml}</div>
+    ${adminMsg ? `<div style="background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:#15803d;font-weight:600">✓ ${esc(adminMsg)}</div>` : ''}
+    ${content}
+  </div>`;
+}
+
+function renderAdminCandidates(){
+  const posOpts = state.positions.map(p => `<option value="${p.id}" ${newCand.positionId===p.id?'selected':''}>${esc(p.name)}</option>`).join('');
+  const previewImg = newCand.image ? `<div style="margin-top:8px">${avatarHtml(newCand.name||'?', newCand.image, 56)}</div>` : '';
+
+  const rows = state.candidates.map(c => {
+    const pos = state.positions.find(p => p.id === c.positionId);
+    return `<div class="card-sm" style="display:flex;align-items:center;gap:12px">
+      ${avatarHtml(c.name, c.image, 44)}
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:14px">${esc(c.name)}</div>
+        <div style="font-size:12px;color:#64748b">${esc(pos?.name||'No position')} · ${c.votes} votes</div>
+        ${c.bio?`<div style="font-size:11px;color:#94a3b8">${esc(c.bio)}</div>`:''}
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="openEditCand('${c.id}')">✏️ Edit</button>
+      <button class="btn btn-danger btn-sm" onclick="removeCandidate('${c.id}')">🗑️</button>
+    </div>`;
+  }).join('');
+
+  return `<div class="card">
+    <h4 style="margin-bottom:14px;color:#0f172a">➕ Add New Candidate</h4>
+    <div class="grid2" style="margin-bottom:10px">
+      <div><label class="label">Full Name *</label><input class="input" id="nc-name" value="${esc(newCand.name)}" placeholder="Candidate name"></div>
+      <div><label class="label">Position *</label><select class="input select" id="nc-pos"><option value="">Select position...</option>${posOpts}</select></div>
+    </div>
+    <div style="margin-bottom:10px"><label class="label">Bio / Description</label><input class="input" id="nc-bio" value="${esc(newCand.bio)}" placeholder="Brief description (optional)"></div>
+    <div style="margin-bottom:12px">
+      <label class="label">Profile Photo</label><br>
+      <label class="file-label"><input type="file" accept="image/*" id="nc-img" style="display:none" onchange="handleNewCandImg(event)">📷 Upload Photo</label>
+      ${previewImg}
+    </div>
+    <button class="btn btn-success" id="add-cand-btn">+ Add Candidate</button>
+  </div>
+  <h4 style="margin-bottom:10px;color:#0f172a">All Candidates (${state.candidates.length})</h4>
+  ${rows || '<p style="color:#94a3b8;font-size:14px">No candidates yet.</p>'}
+  ${editingCand ? renderEditCandModal() : ''}`;
+}
+
+function renderEditCandModal(){
+  const c = editingCand;
+  const posOpts = state.positions.map(p => `<option value="${p.id}" ${c.positionId===p.id?'selected':''}>${esc(p.name)}</option>`).join('');
+  return `<div class="modal-overlay" onclick="closeEditCand(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-title">✏️ Edit Candidate</div>
+      <div style="margin-bottom:10px"><label class="label">Name</label><input class="input" id="ec-name" value="${esc(c.name)}"></div>
+      <div style="margin-bottom:10px"><label class="label">Position</label><select class="input select" id="ec-pos">${posOpts}</select></div>
+      <div style="margin-bottom:10px"><label class="label">Bio</label><input class="input" id="ec-bio" value="${esc(c.bio||'')}"></div>
+      <div style="margin-bottom:14px">
+        <label class="label">Profile Photo</label><br>
+        <label class="file-label"><input type="file" accept="image/*" id="ec-img" style="display:none" onchange="handleEditCandImg(event)">📷 Change Photo</label>
+        ${c.image ? `<div style="margin-top:8px">${avatarHtml(c.name, c.image, 56)}</div>` : ''}
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-success" id="save-edit-cand-btn">Save Changes</button>
+        <button class="btn btn-ghost" onclick="editingCand=null;render()">Cancel</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderAdminPositions(){
+  const rows = state.positions.map(pos => {
+    const count = state.candidates.filter(c => c.positionId === pos.id).length;
+    if(editingPos && editingPos.id === pos.id) return `<div class="card-sm" style="display:flex;align-items:center;gap:10px">
+      <input class="input" id="ep-name" value="${esc(editingPos.name)}" style="flex:1">
+      <button class="btn btn-success btn-sm" id="save-edit-pos-btn">Save</button>
+      <button class="btn btn-ghost btn-sm" onclick="editingPos=null;render()">Cancel</button>
+    </div>`;
+    return `<div class="card-sm" style="display:flex;align-items:center;gap:12px">
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:14px">${esc(pos.name)}</div>
+        <div style="font-size:12px;color:#64748b">${count} candidate${count!==1?'s':''}</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="openEditPos('${pos.id}')">✏️ Edit</button>
+      <button class="btn btn-danger btn-sm" onclick="removePosition('${pos.id}')">🗑️</button>
+    </div>`;
+  }).join('');
+
+  return `<div class="card">
+    <h4 style="margin-bottom:12px;color:#0f172a">➕ Add Position</h4>
+    <div style="display:flex;gap:10px">
+      <input class="input" id="np-name" value="${esc(newPosName)}" placeholder="e.g. Treasurer, Secretary..." style="flex:1">
+      <button class="btn btn-success" id="add-pos-btn">+ Add</button>
+    </div>
+  </div>
+  <h4 style="margin-bottom:10px;color:#0f172a">All Positions (${state.positions.length})</h4>
+  ${rows || '<p style="color:#94a3b8;font-size:14px">No positions yet.</p>'}`;
+}
+
+function renderAdminSettings(){
+  return `<div class="card">
+    <h4 style="margin-bottom:14px;color:#0f172a">🎨 Election Branding</h4>
+    <div style="margin-bottom:12px"><label class="label">Election Title</label><input class="input" id="s-title" value="${esc(state.title)}" oninput="state.title=this.value"></div>
+    <div style="margin-bottom:12px"><label class="label">Subtitle</label><input class="input" id="s-sub" value="${esc(state.subtitle)}" oninput="state.subtitle=this.value"></div>
+    <div style="margin-bottom:14px"><label class="label">Organization Name</label><input class="input" id="s-org" value="${esc(state.organizationName)}" oninput="state.organizationName=this.value"></div>
+    <button class="btn btn-primary" id="save-settings-btn">💾 Save Branding</button>
+  </div>
+  <div class="card">
+    <h4 style="margin-bottom:14px;color:#0f172a">🔧 Election Controls</h4>
+    <div class="toggle-row">
+      <label class="toggle"><input type="checkbox" ${state.electionOpen?'checked':''} id="t-open"><span class="toggle-slider"></span></label>
+      <div class="toggle-text"><div class="toggle-label">Voting Open</div><div class="toggle-desc">Allow voters to submit their votes</div></div>
+    </div>
+    <div class="toggle-row">
+      <label class="toggle"><input type="checkbox" ${state.showResults?'checked':''} id="t-results"><span class="toggle-slider"></span></label>
+      <div class="toggle-text"><div class="toggle-label">Show Results Publicly</div><div class="toggle-desc">Results tab visible to all voters</div></div>
+    </div>
+    <div style="margin-top:14px">
+      <button class="btn btn-primary" id="save-controls-btn">💾 Save Controls</button>
+    </div>
+  </div>
+  <div class="card" style="border-color:#fecaca">
+    <h4 style="margin-bottom:8px;color:var(--red)">⚠️ Danger Zone</h4>
+    <p style="font-size:13px;color:#64748b;margin-bottom:12px">Reset all vote counts to zero. Voters will be able to vote again. This cannot be undone.</p>
+    <button class="btn btn-danger" id="reset-votes-btn">🔄 Reset All Votes</button>
+  </div>`;
+}
+
+// ─── EVENTS ───────────────────────────────────────────────────────────────
+function attachEvents(){
+  // Register
+  const regBtn = document.getElementById('reg-btn');
+  if(regBtn) regBtn.onclick = registerVoter;
+
+  // Vote submit
+  const submitBtn = document.getElementById('submit-vote-btn');
+  if(submitBtn) submitBtn.onclick = submitVote;
+
+  // Admin login
+  const loginBtn = document.getElementById('admin-login-btn');
+  if(loginBtn) loginBtn.onclick = tryAdminLogin;
+  const passInput = document.getElementById('admin-pass');
+  if(passInput) passInput.onkeydown = e => { if(e.key==='Enter') tryAdminLogin(); };
+
+  // Add candidate
+  const addCandBtn = document.getElementById('add-cand-btn');
+  if(addCandBtn) addCandBtn.onclick = addCandidate;
+
+  // Save edit candidate
+  const saveEditCandBtn = document.getElementById('save-edit-cand-btn');
+  if(saveEditCandBtn) saveEditCandBtn.onclick = saveEditCand;
+
+  // Add position
+  const addPosBtn = document.getElementById('add-pos-btn');
+  if(addPosBtn) addPosBtn.onclick = addPosition;
+
+  // Save edit position
+  const saveEditPosBtn = document.getElementById('save-edit-pos-btn');
+  if(saveEditPosBtn) saveEditPosBtn.onclick = saveEditPos;
+
+  // Settings save
+  const saveSettingsBtn = document.getElementById('save-settings-btn');
+  if(saveSettingsBtn) saveSettingsBtn.onclick = saveSettings;
+
+  const saveControlsBtn = document.getElementById('save-controls-btn');
+  if(saveControlsBtn) saveControlsBtn.onclick = saveControls;
+
+  const resetBtn = document.getElementById('reset-votes-btn');
+  if(resetBtn) resetBtn.onclick = resetVotes;
+}
+
+// ─── ACTIONS ──────────────────────────────────────────────────────────────
+function setView(v){
+  currentView = v;
+  voteMsg = '';
+  render();
+}
+
+function setAdminTab(t){
+  adminTab = t;
+  adminMsg = '';
+  render();
+}
+
+function logout(){
+  adminAuthed = false;
+  currentView = 'vote';
+  render();
+}
+
+function selectCand(posId, candId){
+  selections = {...selections, [posId]: candId};
+  render();
+}
+
+async function registerVoter(){
+  const name = document.getElementById('vn-name')?.value?.trim();
+  const email = document.getElementById('vn-email')?.value?.trim();
+  voterName = name||''; voterEmail = email||'';
+  if(!name || !email){ voteMsg = 'Please fill in all fields.'; render(); return; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ voteMsg = 'Enter a valid email address.'; render(); return; }
+  if(!voterId){
+    voterId = gid();
+    await saveVoterId(voterId);
+  }
+  if(state.voters.includes(voterId)){ voteStep='done'; render(); return; }
+  voteMsg = ''; voteStep = 'vote'; render();
+}
+
+async function submitVote(){
+  const missing = state.positions.filter(p =>
+    state.candidates.some(c => c.positionId===p.id) && !selections[p.id]
+  );
+  if(missing.length){ voteMsg = `Please select a candidate for: ${missing.map(p=>p.name).join(', ')}`; render(); return; }
+
+  const newState = JSON.parse(JSON.stringify(state));
+  Object.values(selections).forEach(cid => {
+    const c = newState.candidates.find(c => c.id===cid);
+    if(c) c.votes++;
+  });
+  if(!newState.voters.includes(voterId)) newState.voters.push(voterId);
+  await saveData(newState);
+  voteStep = 'done'; voteMsg = ''; render();
+}
+
+function tryAdminLogin(){
+  adminPassInput = document.getElementById('admin-pass')?.value || '';
+  if(adminPassInput === 'admin123'){ adminAuthed=true; authError=''; adminPassInput=''; }
+  else { authError = 'Incorrect password. Default is admin123'; }
+  render();
+}
+
+function openEditCand(id){
+  const c = state.candidates.find(c => c.id===id);
+  if(c) editingCand = JSON.parse(JSON.stringify(c));
+  render();
+}
+
+function closeEditCand(e){
+  if(e.target.classList.contains('modal-overlay')){ editingCand=null; render(); }
+}
+
+function handleNewCandImg(e){
+  const file = e.target.files[0]; if(!file) return;
+  const r = new FileReader();
+  r.onload = ev => { newCand.image = ev.target.result; render(); };
+  r.readAsDataURL(file);
+}
+
+function handleEditCandImg(e){
+  const file = e.target.files[0]; if(!file) return;
+  const r = new FileReader();
+  r.onload = ev => { if(editingCand) editingCand.image = ev.target.result; render(); };
+  r.readAsDataURL(file);
+}
+
+async function addCandidate(){
+
+  const name = document.getElementById('nc-name')?.value?.trim() || '';
+  const positionId = document.getElementById('nc-pos')?.value || '';
+  const bio = document.getElementById('nc-bio')?.value?.trim() || '';
+
+  if(!name || !positionId){
+    alert('Please fill in name and position.');
+    return;
+  }
+
+  const newState = JSON.parse(JSON.stringify(state));
+
+  const candidate = {
+    id: gid(),
+    name,
+    positionId,
+    bio,
+    image: newCand.image || null,
+    votes: 0
+  };
+
+  newState.candidates.push(candidate);
+
+  await saveData(newState);
+
+  // reset form
+  newCand = {
+    name:'',
+    positionId:'',
+    bio:'',
+    image:null
+  };
+
+  adminMsg = 'Candidate added successfully!';
+
+  render();
+}
+
+async function removeCandidate(id){
+  if(!confirm('Remove this candidate?')) return;
+  const newState = JSON.parse(JSON.stringify(state));
+  newState.candidates = newState.candidates.filter(c => c.id!==id);
+  await saveData(newState);
+  adminMsg = 'Candidate removed.'; render();
+}
+
+async function saveEditCand(){
+  editingCand.name = document.getElementById('ec-name')?.value?.trim()||editingCand.name;
+  editingCand.positionId = document.getElementById('ec-pos')?.value||editingCand.positionId;
+  editingCand.bio = document.getElementById('ec-bio')?.value?.trim()||'';
+  const newState = JSON.parse(JSON.stringify(state));
+  newState.candidates = newState.candidates.map(c => c.id===editingCand.id ? editingCand : c);
+  await saveData(newState);
+  editingCand = null; adminMsg = 'Candidate updated!'; render();
+}
+
+function openEditPos(id){
+  const p = state.positions.find(p => p.id===id);
+  if(p) editingPos = {...p};
+  render();
+}
+
+async function addPosition(){
+  newPosName = document.getElementById('np-name')?.value?.trim()||'';
+  if(!newPosName) return;
+  const newState = JSON.parse(JSON.stringify(state));
+  newState.positions.push({id:gid(), name:newPosName});
+  await saveData(newState);
+  newPosName = ''; adminMsg = 'Position added!'; render();
+}
+
+async function removePosition(id){
+  if(!confirm('Remove this position and all its candidates?')) return;
+  const newState = JSON.parse(JSON.stringify(state));
+  newState.positions = newState.positions.filter(p => p.id!==id);
+  newState.candidates = newState.candidates.filter(c => c.positionId!==id);
+  await saveData(newState);
+  adminMsg = 'Position removed.'; render();
+}
+
+async function saveEditPos(){
+  editingPos.name = document.getElementById('ep-name')?.value?.trim()||editingPos.name;
+  const newState = JSON.parse(JSON.stringify(state));
+  newState.positions = newState.positions.map(p => p.id===editingPos.id ? editingPos : p);
+  await saveData(newState);
+  editingPos = null; adminMsg = 'Position updated!'; render();
+}
+
+async function saveSettings(){
+  const title = document.getElementById('s-title')?.value?.trim();
+  const sub = document.getElementById('s-sub')?.value?.trim();
+  const org = document.getElementById('s-org')?.value?.trim();
+  const newState = {...JSON.parse(JSON.stringify(state)), title: title||state.title, subtitle: sub||state.subtitle, organizationName: org||state.organizationName};
+  await saveData(newState);
+  adminMsg = 'Branding saved! Voters will see this immediately.'; render();
+}
+
+async function saveControls(){
+  const open = document.getElementById('t-open')?.checked;
+  const showRes = document.getElementById('t-results')?.checked;
+  const newState = {...JSON.parse(JSON.stringify(state)), electionOpen: open, showResults: showRes};
+  await saveData(newState);
+  adminMsg = 'Controls saved!'; render();
+}
+
+async function resetVotes(){
+  if(!confirm('Reset all votes to zero? This cannot be undone.')) return;
+  const newState = JSON.parse(JSON.stringify(state));
+  newState.candidates = newState.candidates.map(c => ({...c, votes:0}));
+  newState.voters = [];
+  await saveData(newState);
+  adminMsg = 'All votes reset to zero.'; render();
+}
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ─── INIT ─────────────────────────────────────────────────────────────────
+(async () => {
+  render(); // show loading skeleton
+  await loadVoterId();
+  await loadData();
+  if(hasVoted()) voteStep = 'done';
+  render();
+  startPolling();
+})();
+</script>
+</body>
+</html>
